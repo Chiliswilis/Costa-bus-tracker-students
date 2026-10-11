@@ -168,7 +168,8 @@ docker build --build-arg SERVICE=simulator -t costa-bus-simulator .
 ### 2. Frontend (Netlify)
 
 El **`netlify.toml`** de la **raíz del repositorio** ya define todo el build.
-Solo conecta el repo en Netlify y, si el panel te pide valores, usa:
+Solo conecta el repo en Netlify; **deja vacíos** en el panel *Base directory*,
+*Build command* y *Publish directory*:
 
 | Campo de Netlify      | Valor                                                          |
 | --------------------- | -------------------------------------------------------------- |
@@ -177,14 +178,25 @@ Solo conecta el repo en Netlify y, si el panel te pide valores, usa:
 | **Publish directory** | *(vacío — lo define el `netlify.toml`)*                          |
 | **Variable**          | `VITE_BACKEND_URL=https://costa-bus-backend.onrender.com`        |
 
-El `netlify.toml` raíz usa `base = "frontend"`, compila `@costa-bus/shared`
-(dependencia de tipos del frontend) y luego compila el frontend, publicando
-`frontend/dist`. **No** ejecuta el `npm run build` raíz, que también compilaría
-backend y simulator (que no van en Netlify).
+El `netlify.toml` raíz ejecuta el build desde la raíz con workspaces:
 
-> ⚠️ Si configuras "Base directory = `frontend`" en el panel, Netlify buscará el
-> `dist` **relativo a esa base** y fallará con `Deploy directory 'dist' does not
-> exist`. Por eso el `netlify.toml` vive en la raíz.
+```toml
+[build]
+  command = "npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/frontend"
+  publish = "frontend/dist"
+```
+
+Esto compila `@costa-bus/shared` (dependencia de tipos) y luego **solo** el
+frontend, publicando `frontend/dist`. **No** ejecuta el `npm run build` raíz, que
+también compilaría backend y simulator (esos van en Render).
+
+> ⚠️ Errores comunes:
+> - `Deploy directory 'dist' does not exist` → la config del panel quedó con
+>   "Base directory = `frontend`". Un `base` explícito en el `netlify.toml` raíz
+>   sobrescribe el panel ([docs](https://docs.netlify.com/build/configure-builds/monorepos/));
+>   al no fijar `base` y publicar `frontend/dist`, funciona igual.
+> - Build que intenta compilar backend/simulator → se está usando el `npm run build`
+>   raíz; usa los comandos con `--workspace`.
 
 Sin `VITE_BACKEND_URL`, el bundle intentaría conectarse a `localhost:4000` y el
 mapa cargaría sin datos. Ver `.env.example` para la plantilla completa.
