@@ -15,7 +15,7 @@
     "dev:simulator": "npm run dev --workspace simulator",
     "dev:frontend": "npm run dev --workspace frontend",
     "build": "npm run build --workspace shared && npm run build --workspace backend && npm run build --workspace simulator && npm run build --workspace frontend",
-    "typecheck": "npm run typecheck --workspace backend && npm run typecheck --workspace simulator && npm run typecheck --workspace frontend",
+    "typecheck": "npm run build --workspace @costa-bus/shared && npm run typecheck --workspace backend && npm run typecheck --workspace simulator && npm run typecheck --workspace frontend",
     "start": "concurrently -n backend,simulator -c green,blue \"npm:start:backend\" \"npm:start:simulator\"",
     "start:backend": "npm run start --workspace backend",
     "start:simulator": "npm run start --workspace simulator"

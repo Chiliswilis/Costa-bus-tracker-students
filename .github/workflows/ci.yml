@@ -26,8 +26,11 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # `npm run typecheck` (raíz) compila `@costa-bus/shared` antes de verificar
+      # los demás workspaces: sus tipos viven en `shared/dist`, que no existe en
+      # un checkout limpio.
       - name: Verificar tipos
         run: npm run typecheck
 
-      - name: Compilar shared, backend, simulator y frontend
+      - name: Compilar backend, simulator y frontend
         run: npm run build
