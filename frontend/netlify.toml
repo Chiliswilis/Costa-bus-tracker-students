@@ -1,0 +1,18 @@
+# Netlify — Costa Bus Tracker (frontend)
+#
+# Este archivo vive dentro de `frontend/`, que es la carpeta que Netlify debe
+# publicar. Si en el panel pones "Base directory = frontend", Netlify ya lee
+# este `netlify.toml` y usa estos valores.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA sin router, pero se deja el fallback por si se añaden rutas cliente.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

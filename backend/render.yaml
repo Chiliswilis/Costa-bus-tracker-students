@@ -1,0 +1,20 @@
+# Render Blueprint — Backend (Costa Bus Tracker)
+#
+# Despliega el servicio del backend (Express + Socket.io). Este archivo debe
+# estar en la RAÍZ del repositorio: Render solo lee un único `render.yaml`,
+# por lo que backend y simulador se declaran juntos en `/render.yaml`.
+
+services:
+  - type: web
+    name: costa-bus-backend
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/backend
+    startCommand: node dist/index.js
+    rootDir: backend
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: CORS_ORIGIN
+        sync: false # define el dominio de Netlify en el panel de Render

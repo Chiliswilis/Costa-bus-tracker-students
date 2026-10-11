@@ -1,0 +1,30 @@
+{
+  "name": "costa-bus-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rastreo GPS en tiempo real de autobuses de pasajeros en la Costa de Jalisco, México (fase 1: datos simulados).",
+  "workspaces": [
+    "shared",
+    "simulator",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,simulator,frontend -c green,blue,magenta \"npm:dev:backend\" \"npm:dev:simulator\" \"npm:dev:frontend\"",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:simulator": "npm run dev --workspace simulator",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspace shared && npm run build --workspace backend && npm run build --workspace simulator && npm run build --workspace frontend",
+    "typecheck": "npm run typecheck --workspace backend && npm run typecheck --workspace simulator && npm run typecheck --workspace frontend",
+    "start": "concurrently -n backend,simulator -c green,blue \"npm:start:backend\" \"npm:start:simulator\"",
+    "start:backend": "npm run start --workspace backend",
+    "start:simulator": "npm run start --workspace simulator"
+  },
+  "devDependencies": {
+    "concurrently": "8.2.2",
+    "typescript": "5.5.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
