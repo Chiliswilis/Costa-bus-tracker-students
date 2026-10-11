@@ -180,6 +180,23 @@ publish configurados. Solo conecta el repo en Netlify con estos valores:
 Sin `VITE_BACKEND_URL`, el bundle intentaría conectarse a `localhost:4000` y el
 mapa cargaría sin datos. Ver `.env.example` para la plantilla completa.
 
+### Integración continua
+
+El workflow **`.github/workflows/ci.yml`** ejecuta `npm run typecheck` y
+`npm run build` en cada push o pull request a `main`. No despliega: Render y
+Netlify hacen el deploy automático por su cuenta al detectar el push en GitHub.
+
+### Primer push a GitHub
+
+Si el repo aún no tiene remoto:
+
+```bash
+git remote add origin https://github.com/TU-USUARIO/costa-bus-tracker.git
+git push -u origin main
+```
+
+---
+
 ### Archivos de despliegue incluidos
 
 | Archivo                     | Para qué sirve                                        |
@@ -193,6 +210,7 @@ mapa cargaría sin datos. Ver `.env.example` para la plantilla completa.
 | `simulator/Procfile`        | `worker: node dist/index.js`                          |
 | `Dockerfile` + `.dockerignore` | Hosts de contenedores (Fly.io, Cloud Run)          |
 | `frontend/netlify.toml`     | Build y publish del frontend en Netlify               |
+| `.github/workflows/ci.yml`  | GitHub Actions: typecheck + build en cada push/PR      |
 
 ---
 
