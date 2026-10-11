@@ -167,15 +167,24 @@ docker build --build-arg SERVICE=simulator -t costa-bus-simulator .
 
 ### 2. Frontend (Netlify)
 
-La carpeta **`frontend/`** ya incluye un **`netlify.toml`** con el build y el
-publish configurados. Solo conecta el repo en Netlify con estos valores:
+El **`netlify.toml`** de la **raíz del repositorio** ya define todo el build.
+Solo conecta el repo en Netlify y, si el panel te pide valores, usa:
 
-| Campo de Netlify     | Valor           |
-| -------------------- | --------------- |
-| **Base directory**   | `frontend`      |
-| **Build command**    | `npm run build` |
-| **Publish directory**| `dist`          |
-| **Variable**         | `VITE_BACKEND_URL=https://costa-bus-backend.up.railway.app` |
+| Campo de Netlify      | Valor                                                          |
+| --------------------- | -------------------------------------------------------------- |
+| **Base directory**    | *(vacío — lo define el `netlify.toml`)*                          |
+| **Build command**     | *(vacío — lo define el `netlify.toml`)*                          |
+| **Publish directory** | *(vacío — lo define el `netlify.toml`)*                          |
+| **Variable**          | `VITE_BACKEND_URL=https://costa-bus-backend.onrender.com`        |
+
+El `netlify.toml` raíz usa `base = "frontend"`, compila `@costa-bus/shared`
+(dependencia de tipos del frontend) y luego compila el frontend, publicando
+`frontend/dist`. **No** ejecuta el `npm run build` raíz, que también compilaría
+backend y simulator (que no van en Netlify).
+
+> ⚠️ Si configuras "Base directory = `frontend`" en el panel, Netlify buscará el
+> `dist` **relativo a esa base** y fallará con `Deploy directory 'dist' does not
+> exist`. Por eso el `netlify.toml` vive en la raíz.
 
 Sin `VITE_BACKEND_URL`, el bundle intentaría conectarse a `localhost:4000` y el
 mapa cargaría sin datos. Ver `.env.example` para la plantilla completa.
@@ -209,7 +218,7 @@ git push -u origin main
 | `backend/Procfile`          | `web: node dist/index.js` (Railway/Heroku)            |
 | `simulator/Procfile`        | `worker: node dist/index.js`                          |
 | `Dockerfile` + `.dockerignore` | Hosts de contenedores (Fly.io, Cloud Run)          |
-| `frontend/netlify.toml`     | Build y publish del frontend en Netlify               |
+| `netlify.toml` (raíz)       | Build y publish del frontend en Netlify               |
 | `.github/workflows/ci.yml`  | GitHub Actions: typecheck + build en cada push/PR      |
 
 ---

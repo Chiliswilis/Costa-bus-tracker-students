@@ -1,0 +1,26 @@
+# Netlify — Costa Bus Tracker (frontend)
+#
+# IMPORTANTE: este archivo debe estar en la RAÍZ del repositorio. Netlify lee
+# el `netlify.toml` de la raíz y con `base = "frontend"` entra a esa carpeta.
+#
+# Con esto NO necesitas configurar "Base directory" en el panel de Netlify:
+# este archivo lo define todo. Si prefieres configurarlo en el panel, deja
+# "Base directory" vacío y Netlify usará estos valores igualmente.
+
+[build]
+  # Compila `shared` (dependencia de tipos del frontend) y luego el frontend.
+  # El comando corre dentro de `frontend/`, así que `cd ..` entra a la raíz del
+  # monorepo para compilar `shared` antes de compilar el propio frontend.
+  # NO usa el `npm run build` raíz (ese también compilaría backend/simulator).
+  base = "frontend"
+  command = "cd .. && npm run build --workspace @costa-bus/shared && cd frontend && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA sin router, pero se deja el fallback por si se añaden rutas cliente.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
