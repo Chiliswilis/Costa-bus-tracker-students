@@ -18,9 +18,9 @@ services:
     name: costa-bus-backend
     runtime: node
     plan: free
-    rootDir: .  # ⚠️ CAMBIO CLAVE: Debe ser la raíz para que funcionen los workspaces
+    rootDir: backend
     buildCommand: npm ci && npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/backend
-    startCommand: npm run start --workspace @costa-bus/backend
+    startCommand: node dist/index.js
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
@@ -29,16 +29,17 @@ services:
         sync: false
 
   # ------------------------------------------------------------------------
-  # Simulador: worker que emite posiciones GPS falsas cada 3 s al backend.
-  # No expone puerto HTTP, por eso es `worker` y no `web`.
+  # Simulador: emite posiciones GPS falsas cada 3 s al backend.
+  # El plan Free de Render no admite `worker`, así que corre como `web`:
+  # el proceso no abre puerto, pero se mantiene vivo emitiendo telemetría.
   # ------------------------------------------------------------------------
-  - type: worker
+  - type: web
     name: costa-bus-simulator
     runtime: node
     plan: free
-    rootDir: .  # ⚠️ CAMBIO CLAVE: Debe ser la raíz para que funcionen los workspaces
+    rootDir: simulator
     buildCommand: npm ci && npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/simulator
-    startCommand: npm run start --workspace @costa-bus/simulator
+    startCommand: node dist/index.js
     envVars:
       - key: NODE_VERSION
         value: "20"
