@@ -1,3 +1,4 @@
+import { createServer } from 'node:http';
 import { io, type Socket } from 'socket.io-client';
 import {
   BACKEND_URL,
@@ -98,6 +99,28 @@ function tickBus(bus: SimulatedBus): BusPosition {
  * servicio para apuntar al backend desplegado.
  */
 const TARGET_URL = process.env.BACKEND_URL?.trim().replace(/\/+$/, '') ?? BACKEND_URL;
+
+/**
+ * Servidor HTTP mínimo de salud.
+ *
+ * El simulador no necesita exponer API, pero la plataforma de hosting (Render)
+ * exige un puerto abierto para mantener vivo un Web Service. Este listener
+ * satisface ese requisito sin interferir con el canal de telemetría.
+ */
+const HEALTH_PORT = Number(process.env.PORT ?? 0);
+if (HEALTH_PORT > 0) {
+  createServer((req, res) => {
+    if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', service: 'costa-bus-simulator', buses: buses.length }));
+      return;
+    }
+    res.writeHead(404);
+    res.end();
+  }).listen(HEALTH_PORT, () => {
+    console.log(`[simulator] servidor de salud escuchando en el puerto ${HEALTH_PORT}`);
+  });
+}
 
 const socket: Socket = io(TARGET_URL, { transports: ['websocket'] });
 
