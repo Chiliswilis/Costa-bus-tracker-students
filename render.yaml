@@ -18,9 +18,9 @@ services:
     name: costa-bus-backend
     runtime: node
     plan: free
-    rootDir: backend
+    rootDir: .  # ⚠️ CAMBIO CLAVE: Debe ser la raíz para que funcionen los workspaces
     buildCommand: npm ci && npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/backend
-    startCommand: node dist/index.js
+    startCommand: npm run start --workspace @costa-bus/backend
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
@@ -36,9 +36,9 @@ services:
     name: costa-bus-simulator
     runtime: node
     plan: free
-    rootDir: simulator
+    rootDir: .  # ⚠️ CAMBIO CLAVE: Debe ser la raíz para que funcionen los workspaces
     buildCommand: npm ci && npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/simulator
-    startCommand: node dist/index.js
+    startCommand: npm run start --workspace @costa-bus/simulator
     envVars:
       - key: NODE_VERSION
         value: "20"
