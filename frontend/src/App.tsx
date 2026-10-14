@@ -11,11 +11,13 @@ import {
 import { useSocket, ALERT_ETA_THRESHOLD_MINUTES } from "./hooks/useSocket";
 import { useAlarmSound } from "./hooks/useAlarmSound";
 import { useGeolocation } from "./hooks/useGeolocation";
+import { useTheme } from "./hooks/useTheme";
 import { MapView } from "./components/MapView";
 import { BusList } from "./components/BusList";
 import { AlertList } from "./components/AlertList";
 import { PurchaseLinks } from "./components/PurchaseLinks";
 import { GoModePanel } from "./components/GoModePanel";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 /**
  * Color de la ruta de regreso de cada ruta base, para que la ida y la vuelta
@@ -38,6 +40,7 @@ export function App() {
   const { routes, buses, alerts, connected, offline, clearAlerts } =
     useSocket();
   const { unlock, playArrivalAlert, playUrgentAlert } = useAlarmSound();
+  const { toggleTheme, isDark } = useTheme();
   const {
     location,
     loading: locating,
@@ -225,6 +228,8 @@ export function App() {
             Costa de Jalisco · datos simulados (fase 1)
           </span>
         </div>
+
+        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
 
         <div className="app-header__spacer" />
 
