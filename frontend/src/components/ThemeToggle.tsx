@@ -28,7 +28,9 @@ export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
           </span>
         </span>
       </span>
-      {isDark ? "Oscuro" : "Claro"}
+      <span className="theme-toggle__label">
+        {isDark ? "Oscuro" : "Claro"}
+      </span>
     </button>
   );
 }

@@ -134,6 +134,8 @@ a {
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  /* Evita que el header desborde en pantallas estrechas. */
+  overflow: hidden;
 }
 
 .app-header__brand {
@@ -141,6 +143,7 @@ a {
   align-items: baseline;
   gap: 10px;
   min-width: 0;
+  flex-shrink: 1;
 }
 
 .app-header__title {
@@ -148,6 +151,8 @@ a {
   font-weight: 700;
   margin: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-header__subtitle {
@@ -221,9 +226,17 @@ a {
   font-size: 0.76rem;
   font-weight: 600;
   white-space: nowrap;
+  flex-shrink: 0;
+  /* Área táctil cómoda en móvil (~44px de alto). */
+  min-height: 34px;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
+}
+
+.theme-toggle__label {
+  display: inline;
 }
 
 .theme-toggle:hover {
@@ -792,8 +805,22 @@ a {
     flex: 1;
   }
 
+  .app-header {
+    gap: 10px;
+    padding: 0 12px;
+  }
+
+  .app-header__title {
+    font-size: 1rem;
+  }
+
   .app-header__subtitle {
     display: none;
+  }
+
+  .status {
+    font-size: 0.7rem;
+    padding: 4px 9px;
   }
 
   .go-overlay {
@@ -801,6 +828,36 @@ a {
     right: 10px;
     bottom: 10px;
     max-width: none;
+  }
+}
+
+/*
+ * En pantallas muy estrechas (móviles en vertical) se libera espacio del
+ * header: el texto del interruptor de tema se oculta y solo queda el switch
+ * con el ícono, que sigue siendo un objetivo táctil grande.
+ */
+@media (max-width: 480px) {
+  .app-header {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .app-header__title {
+    font-size: 0.92rem;
+  }
+
+  /* El botón de tema se convierte en solo el switch (sin la palabra). */
+  .theme-toggle__label {
+    display: none;
+  }
+
+  .theme-toggle {
+    padding: 4px;
+  }
+
+  /* El indicador "por llegar" se reduce a solo el número con ícono. */
+  .status {
+    padding: 4px 8px;
   }
 }
 
