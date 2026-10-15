@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CircleMarker,
   MapContainer,
@@ -70,10 +70,19 @@ function createStopIcon(active: boolean): L.DivIcon {
   });
 }
 
-/** Leyenda flotante sobre el mapa. */
+/**
+ * Leyenda flotante sobre el mapa.
+ *
+ * En escritorio se muestra siempre abierta. En móvil arranca minimizada como
+ * un botón para no tapar el mapa; el usuario puede expandirla con el botón
+ * de la cabecera. El estado se conserva al girar el teléfono.
+ */
 function Legend({ routes }: { routes: Route[] }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div
+      className={`map-legend${open ? " map-legend--open" : ""}`}
       style={{
         position: "absolute",
         right: 12,
@@ -88,40 +97,44 @@ function Legend({ routes }: { routes: Route[] }) {
         maxWidth: 230,
       }}
     >
-      <div
-        style={{
-          fontWeight: 700,
-          marginBottom: 7,
-          color: "var(--text-muted)",
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          fontSize: "0.68rem",
-        }}
+      <button
+        type="button"
+        className="map-legend__header"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        aria-controls="map-legend-list"
+        title={open ? "Minimizar rutas activas" : "Expandir rutas activas"}
       >
-        Rutas activas
-      </div>
-      {routes.map((route) => (
-        <div
-          key={route.id}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginBottom: 4,
-          }}
-        >
-          <span
+        <span className="map-legend__title">Rutas activas</span>
+        <span className="map-legend__chevron mi" aria-hidden="true">
+          {open ? "expand_less" : "expand_more"}
+        </span>
+      </button>
+
+      <div className="map-legend__list" id="map-legend-list">
+        {routes.map((route) => (
+          <div
+            key={route.id}
             style={{
-              width: 16,
-              height: 3,
-              background: route.color,
-              borderRadius: 2,
-              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 4,
             }}
-          />
-          <span>{route.name}</span>
-        </div>
-      ))}
+          >
+            <span
+              style={{
+                width: 16,
+                height: 3,
+                background: route.color,
+                borderRadius: 2,
+                flexShrink: 0,
+              }}
+            />
+            <span>{route.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

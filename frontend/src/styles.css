@@ -832,6 +832,68 @@ a {
 }
 
 /*
+ * Leyenda "Rutas activas" flotante sobre el mapa.
+ *
+ * En escritorio la cabecera no es interactiva: el botón se ve como un título
+ * plano y la lista siempre está visible. En móvil la cabecera se vuelve un
+ * botón táctil que expande/minimiza la lista para no tapar el mapa.
+ */
+.map-legend__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  cursor: default;
+}
+
+.map-legend__chevron {
+  font-size: 1.1rem;
+  line-height: 1;
+  display: none;
+}
+
+.map-legend__list {
+  margin-top: 7px;
+}
+
+/*
+ * En pantallas medianas y pequeñas la leyenda arranca minimizada como un
+ * botón compacto (solo la cabecera) y se expande bajo demanda.
+ */
+@media (max-width: 900px) {
+  .map-legend {
+    max-width: min(230px, calc(100% - 24px)) !important;
+    padding: 8px 12px !important;
+  }
+
+  .map-legend__header {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .map-legend__chevron {
+    display: inline-flex;
+  }
+
+  /* Minimizada: la lista se oculta hasta que el usuario la expande. */
+  .map-legend:not(.map-legend--open) .map-legend__list {
+    display: none;
+  }
+}
+
+/*
  * En pantallas muy estrechas (móviles en vertical) se libera espacio del
  * header: el texto del interruptor de tema se oculta y solo queda el switch
  * con el ícono, que sigue siendo un objetivo táctil grande.
@@ -858,6 +920,12 @@ a {
   /* El indicador "por llegar" se reduce a solo el número con ícono. */
   .status {
     padding: 4px 8px;
+  }
+
+  /* La leyenda se ancla arriba a la derecha sin tapar el centro del mapa. */
+  .map-legend {
+    top: 8px !important;
+    right: 8px !important;
   }
 }
 
