@@ -1,5 +1,5 @@
 import type { BusUpdate } from "@costa-bus/shared";
-import { formatEta } from "@costa-bus/shared";
+import { formatEta, operatorBrand } from "@costa-bus/shared";
 import { ALERT_ETA_THRESHOLD_MINUTES } from "../hooks/useSocket";
 
 interface BusCardProps {
@@ -28,6 +28,9 @@ export function BusCard({
   const approaching =
     !soon && bus.etaMinutes <= ALERT_ETA_THRESHOLD_MINUTES * 2;
 
+  // El acento de la tarjeta es el color de la LÍNEA que opera la unidad.
+  const brand = operatorBrand(bus.operator);
+
   const cardClass = [
     "bus-card",
     soon ? "bus-card--soon" : "",
@@ -45,9 +48,14 @@ export function BusCard({
     .join(" ");
 
   return (
-    <article className={cardClass} style={{ borderLeftColor: bus.routeColor }}>
+    <article className={cardClass} style={{ borderLeftColor: brand.color }}>
       <header className="bus-card__header">
         <div className="bus-card__id">
+          <span
+            className="bus-card__line-dot"
+            style={{ background: brand.color }}
+            aria-hidden="true"
+          />
           <span className="mi" aria-hidden="true">
             directions_bus
           </span>{" "}
@@ -65,7 +73,14 @@ export function BusCard({
         </div>
       </header>
 
-      <div className="bus-card__operator">{bus.operator}</div>
+      <div className="bus-card__operator">
+        <span
+          className="bus-card__line-dot"
+          style={{ background: brand.color }}
+          aria-hidden="true"
+        />
+        {bus.operator}
+      </div>
 
       {etaToUser !== null && userStopName && (
         <div className="bus-card__to-user" title="Tiempo hasta tu ubicación">
@@ -95,7 +110,7 @@ export function BusCard({
           className="progress-bar__fill"
           style={{
             width: `${Math.min(100, Math.max(0, bus.progress * 100))}%`,
-            background: bus.routeColor,
+            background: brand.color,
           }}
         />
       </div>

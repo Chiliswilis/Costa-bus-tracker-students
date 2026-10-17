@@ -60,6 +60,15 @@ export const ROUTES: Route[] = [
       CITIES.melaque,
       CITIES.barraDeNavidad,
     ],
+    // ETN no cubre este corredor (va por Autlán, no por Colima).
+    operators: [OPERATORS.primeraPlus, OPERATORS.autocamionesDelPacifico],
+  },
+  {
+    id: 'gdl-manzanillo',
+    name: 'Guadalajara → Manzanillo',
+    color: '#a78bfa',
+    cities: [CITIES.guadalajara, CITIES.colima, CITIES.manzanillo],
+    // Corredor de ETN: Guadalajara ↔ Colima ↔ Manzanillo.
     operators: [
       OPERATORS.etn,
       OPERATORS.primeraPlus,
@@ -67,18 +76,16 @@ export const ROUTES: Route[] = [
     ],
   },
   {
-    id: 'gdl-manzanillo',
-    name: 'Guadalajara → Manzanillo',
-    color: '#a78bfa',
-    cities: [CITIES.guadalajara, CITIES.colima, CITIES.manzanillo],
-    operators: [OPERATORS.etn, OPERATORS.primeraPlus],
-  },
-  {
     id: 'manzanillo-barra-navidad',
     name: 'Manzanillo → Barra de Navidad',
     color: '#fbbf24',
     cities: [CITIES.manzanillo, CITIES.cihuatlan, CITIES.barraDeNavidad],
-    operators: [OPERATORS.autocamionesDelPacifico, OPERATORS.primeraPlus],
+    // Corredor de ETN: Manzanillo ↔ Barra de Navidad.
+    operators: [
+      OPERATORS.etn,
+      OPERATORS.primeraPlus,
+      OPERATORS.autocamionesDelPacifico,
+    ],
   },
   {
     id: 'barra-navidad-puerto-vallarta',
@@ -90,7 +97,8 @@ export const ROUTES: Route[] = [
       CITIES.tomatlan,
       CITIES.puertoVallarta,
     ],
-    operators: [OPERATORS.autocamionesDelPacifico, OPERATORS.primeraPlus],
+    // ETN no cubre este corredor: solo va Guadalajara ↔ Colima ↔ Manzanillo ↔ Barra de Navidad.
+    operators: [OPERATORS.primeraPlus, OPERATORS.autocamionesDelPacifico],
   },
 ];
 

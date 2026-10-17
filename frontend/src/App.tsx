@@ -14,13 +14,18 @@ import { useGeolocation } from "./hooks/useGeolocation";
 import { useTheme } from "./hooks/useTheme";
 import { MapView } from "./components/MapView";
 import { BusList } from "./components/BusList";
-import { AlertList } from "./components/AlertList";
 import { PurchaseLinks } from "./components/PurchaseLinks";
 import { GoModePanel } from "./components/GoModePanel";
 import { ThemeToggle } from "./components/ThemeToggle";
+import {
+  NearbyRoutes,
+  badgeForRoute,
+  operatorLabel,
+  type NearbyRouteGroup,
+} from "./components/NearbyRoutes";
+import { ServiceAlerts } from "./components/ServiceAlerts";
 
-/**
- * Color de la ruta de regreso de cada ruta base, para que la ida y la vuelta
+/** Color de la ruta de regreso de cada ruta base, para que la ida y la vuelta
  * de un mismo corredor se distingan de un vistazo en el mapa y en la leyenda.
  */
 const RETURN_COLORS: Record<string, string> = {
@@ -29,6 +34,12 @@ const RETURN_COLORS: Record<string, string> = {
   "manzanillo-barra-navidad": "#fcd34d",
   "barra-navidad-puerto-vallarta": "#6ee7b7",
 };
+
+/** Distancia máxima (km) a la que una parada cuenta como "cerca de ti". */
+const NEARBY_MAX_KM = 40;
+
+/** Número máximo de tarjetas mostradas en "Rutas activas cerca de ti". */
+const NEARBY_MAX_RESULTS = 8;
 
 /** Elige el color de la ruta de regreso (o el mismo si no hay uno definido). */
 function returnColorFor(route: Route): string {
@@ -133,6 +144,76 @@ export function App() {
     }
     return best;
   }, [busesToUser, etaToUserByBus]);
+
+  /**
+   * Rutas cuyo corredor pasa cerca de la ubicación del usuario.
+   *
+   * Se genera UNA TARJETA POR SENTIDO (ida y regreso) para cada corredor que
+   * tenga una parada a menos de `NEARBY_MAX_KM`. Cada tarjeta se ordena por
+   * cercanía y se enriquece con la ETA de la unidad de ESE sentido que va hacia
+   * la parada más próxima.
+   */
+  const nearbyRoutes = useMemo<NearbyRouteGroup[]>(() => {
+    if (!location) return [];
+
+    const groups: NearbyRouteGroup[] = [];
+
+    for (const route of routeDirections) {
+      // Parada de este sentido más cercana al usuario.
+      let best: { city: (typeof route.cities)[number]; index: number; km: number } | null =
+        null;
+      route.cities.forEach((city, index) => {
+        const km = distanceKm(location.lat, location.lng, city.lat, city.lng);
+        if (!best || km < best.km) best = { city, index, km };
+      });
+
+      if (!best) continue;
+      const nearestStop: { city: (typeof route.cities)[number]; index: number; km: number } =
+        best;
+      if (nearestStop.km > NEARBY_MAX_KM) continue;
+
+      // Unidades de ESTE sentido que aún no pasan esa parada.
+      const approaching = buses
+        .filter(
+          (bus) =>
+            bus.routeId === route.id &&
+            bus.nextStopIndex <= nearestStop.index,
+        )
+        .map((bus) => {
+          const remainingKm = distanceKm(
+            bus.lat,
+            bus.lng,
+            nearestStop.city.lat,
+            nearestStop.city.lng,
+          );
+          return { bus, eta: computeEtaMinutes(remainingKm, bus.speedKmh) };
+        })
+        .sort((a, b) => a.eta - b.eta);
+
+      const nearest = approaching[0] ?? null;
+
+      groups.push({
+        directionId: route.id,
+        stopName: nearestStop.city.name,
+        color: route.color,
+        badge: badgeForRoute(route.id),
+        title: route.name,
+        subtitle: `Hacia ${nearestStop.city.name}`,
+        distanceKm: nearestStop.km,
+        operator: operatorLabel(nearest?.bus) ?? route.operators[0]?.name ?? "",
+        etaMinutes: nearest ? nearest.eta : null,
+      });
+    }
+
+    return groups
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, NEARBY_MAX_RESULTS);
+  }, [location, routeDirections, buses]);
+
+  /** ETA y operador de la unidad más cercana al usuario en la ruta activa. */
+  const nearestEtaMinutes = nearestBusToUser
+    ? (etaToUserByBus[nearestBusToUser.busId] ?? null)
+    : null;
 
   const followedBus = useMemo(
     () => buses.find((bus) => bus.busId === followedBusId) ?? null,
@@ -274,6 +355,69 @@ export function App() {
         />
 
         <aside className="sidebar">
+          {/* 1) Ubicación: primero lo que habilita todo lo demás. */}
+          {location ? (
+            <div className="location-banner location-banner--ok">
+              <span className="mi" aria-hidden="true">
+                my_location
+              </span>
+              <div>
+                <strong>Usando tu ubicación</strong>
+                <div className="location-banner__hint">
+                  {userProjection
+                    ? `Las ETAs se calculan hasta ${userProjection.nextStopName}.`
+                    : "No estás cerca del corredor de esta ruta."}
+                </div>
+                {nearestBusToUser &&
+                  etaToUserByBus[nearestBusToUser.busId] !== undefined && (
+                    <div className="location-banner__hint">
+                      El más cercano ({nearestBusToUser.busId}) llega en ~
+                      {Math.max(1, Math.round(etaToUserByBus[nearestBusToUser.busId]))} min.
+                    </div>
+                  )}
+              </div>
+            </div>
+          ) : (
+            <div className="location-banner">
+              <span className="mi" aria-hidden="true">
+                location_on
+              </span>
+              <div style={{ flex: 1 }}>
+                <strong>Usar mi ubicación</strong>
+                <div className="location-banner__hint">
+                  Actívala para ver las rutas y los autobuses cerca de ti.
+                </div>
+                {locationError && (
+                  <div className="location-banner__hint location-banner__hint--error">
+                    {locationError}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  style={{ marginTop: 8 }}
+                  disabled={locating}
+                  onClick={requestLocation}
+                >
+                  <span className="mi" aria-hidden="true">
+                    my_location
+                  </span>{" "}
+                  {locating ? "Obteniendo…" : "Usar mi ubicación"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 2) Rutas activas cerca de ti (clic → selecciona la ruta). */}
+          {location && (
+            <NearbyRoutes
+              groups={nearbyRoutes}
+              loading={locating}
+              selectedDirectionId={selectedDirectionId}
+              onSelect={setSelectedDirectionId}
+            />
+          )}
+
           <section>
             <h2 className="sidebar__section-title">
               <span>
@@ -380,60 +524,13 @@ export function App() {
             />
           </section>
 
-          <AlertList alerts={alerts} onClear={clearAlerts} />
-
-          {location ? (
-            <div className="location-banner location-banner--ok">
-              <span className="mi" aria-hidden="true">
-                my_location
-              </span>
-              <div>
-                <strong>Usando tu ubicación</strong>
-                <div className="location-banner__hint">
-                  {userProjection
-                    ? `Las ETAs se calculan hasta ${userProjection.nextStopName}.`
-                    : "No estás cerca del corredor de esta ruta."}
-                </div>
-                {nearestBusToUser &&
-                  etaToUserByBus[nearestBusToUser.busId] !== undefined && (
-                    <div className="location-banner__hint">
-                      El más cercano ({nearestBusToUser.busId}) llega en ~
-                      {Math.max(1, Math.round(etaToUserByBus[nearestBusToUser.busId]))} min.
-                    </div>
-                  )}
-              </div>
-            </div>
-          ) : (
-            <div className="location-banner">
-              <span className="mi" aria-hidden="true">
-                location_on
-              </span>
-              <div style={{ flex: 1 }}>
-                <strong>Ubicación desactivada</strong>
-                <div className="location-banner__hint">
-                  Actívala para ver cuánto falta para que un autobús llegue a
-                  donde estás.
-                </div>
-                {locationError && (
-                  <div className="location-banner__hint location-banner__hint--error">
-                    {locationError}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  className="btn btn--primary"
-                  style={{ marginTop: 8 }}
-                  disabled={locating}
-                  onClick={requestLocation}
-                >
-                  <span className="mi" aria-hidden="true">
-                    my_location
-                  </span>{" "}
-                  {locating ? "Obteniendo…" : "Usar mi ubicación"}
-                </button>
-              </div>
-            </div>
-          )}
+          <ServiceAlerts
+            alerts={alerts}
+            userStopName={userProjection?.nextStopName ?? null}
+            nearestEtaMinutes={nearestEtaMinutes}
+            nearestOperator={nearestBusToUser?.operator ?? null}
+            onClear={clearAlerts}
+          />
 
           <PurchaseLinks
             operators={selectedRoute?.operators ?? []}

@@ -73,9 +73,9 @@ function createStopIcon(active: boolean): L.DivIcon {
 /**
  * Leyenda flotante sobre el mapa.
  *
- * En escritorio se muestra siempre abierta. En móvil arranca minimizada como
- * un botón para no tapar el mapa; el usuario puede expandirla con el botón
- * de la cabecera. El estado se conserva al girar el teléfono.
+ * Arranca minimizada en todas las pantallas para no tapar el mapa (con 8 rutas
+ * la lista es larga). El usuario la expande con el botón de la cabecera y el
+ * estado se conserva mientras navega.
  */
 function Legend({ routes }: { routes: Route[] }) {
   const [open, setOpen] = useState(false);

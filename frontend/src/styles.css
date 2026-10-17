@@ -531,8 +531,19 @@ a {
 }
 
 .bus-card__operator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.76rem;
   color: var(--text-muted);
+}
+
+/* Punto que identifica la línea que opera la unidad. */
+.bus-card__line-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .bus-card__to-user {
@@ -687,16 +698,15 @@ a {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 2px solid #04121f;
-  color: #04121f;
+  /* El color de fondo y de ícono lo pone el operador desde el marcador. */
+  border: 2px solid rgba(0, 0, 0, 0.35);
   font-size: 15px;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 .bus-marker .mi {
   font-size: 18px;
-  color: #04121f;
 }
 
 .bus-marker--soon {
@@ -855,41 +865,33 @@ a {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-align: left;
-  cursor: default;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .map-legend__chevron {
   font-size: 1.1rem;
   line-height: 1;
-  display: none;
+  display: inline-flex;
 }
 
 .map-legend__list {
   margin-top: 7px;
 }
 
+/* Cerrada: la lista de rutas se oculta hasta que el usuario la expande. */
+.map-legend:not(.map-legend--open) .map-legend__list {
+  display: none;
+}
+
 /*
- * En pantallas medianas y pequeñas la leyenda arranca minimizada como un
- * botón compacto (solo la cabecera) y se expande bajo demanda.
+ * En pantallas medianas y pequeñas la leyenda se limita al ancho disponible
+ * para no salirse del mapa.
  */
 @media (max-width: 900px) {
   .map-legend {
     max-width: min(230px, calc(100% - 24px)) !important;
     padding: 8px 12px !important;
-  }
-
-  .map-legend__header {
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .map-legend__chevron {
-    display: inline-flex;
-  }
-
-  /* Minimizada: la lista se oculta hasta que el usuario la expande. */
-  .map-legend:not(.map-legend--open) .map-legend__list {
-    display: none;
   }
 }
 
@@ -986,4 +988,385 @@ a {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
+}
+
+/* ==========================================================================
+   Rutas cerca de ti (NearbyRoutes)
+   ========================================================================== */
+
+.nearby {
+  display: flex;
+  flex-direction: column;
+}
+
+.nearby__title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 9px;
+}
+
+.nearby__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nearby-card {
+  --line-color: var(--border);
+  --route-color: var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  /* Toda la fila se tiñe con el color de la RUTA. */
+  background: color-mix(in srgb, var(--route-color) 18%, var(--bg-elevated));
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--route-color);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.nearby-card:hover {
+  background: color-mix(in srgb, var(--route-color) 28%, var(--bg-elevated));
+}
+
+.nearby-card:active {
+  transform: translateY(1px);
+}
+
+.nearby-card:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+/* Fila de la ruta seleccionada: anillo de acento bien visible. */
+.nearby-card--active {
+  background: color-mix(in srgb, var(--route-color) 34%, var(--bg-elevated));
+  border-color: var(--accent-strong);
+  box-shadow:
+    0 0 0 2px var(--accent-strong),
+    inset 4px 0 0 0 var(--accent-strong);
+}
+
+/* Etiqueta de sentido (Ida / Regreso) en cada tarjeta. */
+.nearby-card__dir {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--route-color);
+  color: #04121f;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+.nearby-card__badge {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  /* El color lo pone la LÍNEA (dorado / azul / plata) desde el componente. */
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.nearby-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.nearby-card__title {
+  display: block;
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nearby-card__subtitle {
+  display: block;
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nearby-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.nearby-card__distance,
+.nearby-card__operator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nearby-card__operator {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nearby-card__eta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  color: var(--accent);
+}
+
+.nearby-card__eta-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.nearby-card__eta-unit {
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.nearby-card__eta-none {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Alertas de servicio (ServiceAlerts)
+   ========================================================================== */
+
+.service-alerts {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-alerts__title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 9px;
+}
+
+.service-alerts__stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-alerts__stop .mi {
+  color: var(--accent);
+}
+
+.service-alerts__headline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.service-alerts__eta-block {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--accent);
+}
+
+.service-alerts__eta-value {
+  font-size: 2.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.service-alerts__eta-unit {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.service-alerts__eta-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.service-alerts__eta-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.service-alerts__eta-stop {
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-alerts__headline--idle {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  gap: 8px;
+}
+
+.service-alerts__idle-text {
+  font-weight: 600;
+}
+
+.service-alerts__card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 13px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.service-alerts__card-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.service-alerts__card-top .mi {
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.service-alerts__card-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-alerts__card-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.service-alerts__card-address {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.service-alerts__notice {
+  display: flex;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  align-items: flex-start;
+}
+
+.service-alerts__notice > .mi {
+  color: var(--danger);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.service-alerts__notice-message {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.service-alerts__notice-time {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.service-alerts__card-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.service-alerts__clear {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+  .nearby-card {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .nearby-card__badge {
+    width: 40px;
+    height: 40px;
+    font-size: 1.05rem;
+  }
+
+  .service-alerts__eta-value {
+    font-size: 2rem;
+  }
 }

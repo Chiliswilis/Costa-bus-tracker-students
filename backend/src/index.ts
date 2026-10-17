@@ -8,10 +8,11 @@ import {
   BACKEND_PORT,
   ROUTES,
   SOCKET_EVENTS,
-  getRouteById,
+  invertRoute,
   type Alert,
   type BusPosition,
   type BusUpdate,
+  type Route,
 } from '@costa-bus/shared';
 
 /**
@@ -56,6 +57,21 @@ const lastKnownPositions = new Map<string, BusUpdate>();
 const ALERT_COOLDOWN_MS = 90_000;
 const lastAlertAt = new Map<string, number>();
 
+/**
+ * Catálogo de rutas con sus dos sentidos (ida y regreso). El simulador emite
+ * posiciones para ambos, así que el backend debe poder resolver el nombre y el
+ * color de una ruta `-return` igual que los de su ruta base.
+ */
+const ROUTE_DIRECTIONS: Route[] = ROUTES.flatMap((route) => [
+  route,
+  invertRoute(route),
+]);
+
+/** Devuelve una dirección por id (ida o regreso), o `undefined`. */
+function findDirection(routeId: string): Route | undefined {
+  return ROUTE_DIRECTIONS.find((route) => route.id === routeId);
+}
+
 /** Descarta estado de buses que llevan mucho tiempo sin reportar. */
 function pruneStalePositions(): void {
   const cutoff = Date.now() - 5 * 60_000;
@@ -68,7 +84,7 @@ function pruneStalePositions(): void {
 
 /** Enriquece la posición cruda con datos de la ruta. */
 function toBusUpdate(position: BusPosition): BusUpdate | null {
-  const route = getRouteById(position.routeId);
+  const route = findDirection(position.routeId);
   if (!route) return null;
   return {
     ...position,

@@ -78,15 +78,20 @@ npm run dev      # levanta backend + simulator + frontend a la vez
 3. **Manzanillo → Barra de Navidad** (vía Cihuatlán)
 4. **Barra de Navidad → Puerto Vallarta** (vía Melaque, Tomatlán)
 
-Cada ruta transporta **2 autobuses simulados**.
+Cada ruta se simula **en ambos sentidos** (ida y regreso) con **2 unidades por
+sentido**, es decir **16 autobuses** en total (4 rutas × 2 sentidos × 2 unidades).
 
 ## Operadores
 
-| Operador                  | Compra                                     | Respaldo                                         |
-| ------------------------- | ------------------------------------------ | ------------------------------------------------ |
-| ETN Turistar Lujo         | https://www.etn.com.mx                     | —                                                |
-| Primera Plus              | https://www.primeraplus.com.mx             | —                                                |
-| Autocamiones del Pacífico | https://www.autocamionesdelpacifico.com.mx | https://www.facebook.com/autocamionesdelpacifico |
+| Operador                    | Rutas cubiertas                                                  | Color   | Compra                                     | Respaldo                                         |
+| --------------------------- | ---------------------------------------------------------------- | ------- | ------------------------------------------ | ------------------------------------------------ |
+| ETN Turistar Lujo           | Guadalajara ↔ Colima ↔ Manzanillo ↔ Barra de Navidad (ida/vuelta) | Plata   | https://www.etn.com.mx                     | —                                                |
+| Primera Plus                | Todas las rutas                                                  | Dorado  | https://www.primeraplus.com.mx             | —                                                |
+| Autocamiones del Pacífico   | Todas las rutas                                                  | Azul    | https://www.autocamionesdelpacifico.com.mx | https://www.facebook.com/autocamionesdelpacifico |
+
+Cada línea tiene un color propio (`shared/src/operators.ts`) que tiñe el marcador
+del autobús en el mapa, el acento de su tarjeta en el panel y el número de la
+ruta en la lista de rutas cercanas.
 
 ---
 
@@ -94,9 +99,15 @@ Cada ruta transporta **2 autobuses simulados**.
 
 - Mapa interactivo (Leaflet + OpenStreetMap), tiles oscuros CARTO.
 - Polilíneas punteadas por ruta y paradas marcadas.
-- Autobuses moviéndose en tiempo real vía WebSocket.
-- Panel lateral: selector de ruta, lista de autobuses con **próxima parada + ETA**,
-  alertas cuando un bus está a **≤ 5 min** y enlaces de compra según la ruta.
+- Autobuses moviéndose en tiempo real vía WebSocket, **con el color de su línea**
+  (dorado Primera Plus, azul Autocamiones del Pacífico, plata ETN).
+- **Rutas activas cerca de ti**: al compartir la ubicación, lista las rutas con una
+  parada a menos de 40 km, en ambos sentidos (ida y regreso), con distancia y ETA.
+  Cada fila va teñida con el color de la ruta y su número con el color de la línea;
+  al pulsarla se selecciona esa ruta y se listan sus unidades.
+- Panel lateral: selector de ruta (ida/regreso), lista de autobuses con **próxima
+  parada + ETA**, **alertas de servicio** cuando un bus está a **≤ 5 min** y enlaces
+  de compra según la ruta.
 - **Modo GO**: navegación con alertas de sonido cuando el bus está por llegar
   (generadas con Web Audio API, sin assets externos).
 - **Modo offline básico**: rutas y paradas se cargan sin conexión; el último estado

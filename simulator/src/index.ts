@@ -6,6 +6,7 @@ import {
   SIMULATOR_TICK_MS,
   SOCKET_EVENTS,
   etaMinutes,
+  invertRoute,
   positionAtDistance,
   totalDistanceKm,
   type BusPosition,
@@ -15,9 +16,14 @@ import {
 /**
  * Simulador de flota.
  *
- * Por cada ruta crea 2 unidades desfasadas, avanza su odómetro según una
- * velocidad variable y traduce la distancia recorrida a una coordenada sobre
- * la polilínea. Emite `bus-position` cada `SIMULATOR_TICK_MS`.
+ * Por cada ruta Y por cada sentido (ida y regreso) crea 2 unidades desfasadas,
+ * avanza su odómetro según una velocidad variable y traduce la distancia
+ * recorrida a una coordenada sobre la polilínea. Emite `bus-position` cada
+ * `SIMULATOR_TICK_MS`.
+ *
+ * El regreso usa el mismo trazado con las paradas invertidas (`invertRoute`) y
+ * el id con sufijo `-return`, de modo que el frontend lo trata como una
+ * dirección más sin cambios adicionales.
  *
  * En la fase 2 este proceso se sustituye por un ingestador de hardware Teltonika
  * que emita exactamente el mismo evento con el mismo payload.
@@ -42,23 +48,32 @@ interface SimulatedBus {
 
 const buses: SimulatedBus[] = [];
 
-ROUTES.forEach((route, routeIndex) => {
+/** Unidades simuladas por cada sentido de cada ruta. */
+const UNITS_PER_DIRECTION = 2;
+
+/** Cada ruta base se simula en ida y en regreso (paradas invertidas). */
+const DIRECTIONS: Route[] = ROUTES.flatMap((route) => [route, invertRoute(route)]);
+
+DIRECTIONS.forEach((route, routeIndex) => {
   const routeLengthKm = totalDistanceKm(route);
-  for (let unit = 0; unit < 2; unit += 1) {
+  for (let unit = 0; unit < UNITS_PER_DIRECTION; unit += 1) {
     const operator = route.operators[unit % route.operators.length].name;
     buses.push({
       busId: `bus-${route.id}-${unit + 1}`,
       route,
       operator,
-      // Arranca repartido a lo largo de la ruta y con un pequeño desfase por ruta.
-      travelledKm: (routeLengthKm / 2) * unit + routeIndex * 3,
+      // Arranca repartido a lo largo de la ruta y con un pequeño desfase por tramo.
+      travelledKm: (routeLengthKm / UNITS_PER_DIRECTION) * unit + routeIndex * 3,
       speedKmh: BASE_SPEED_KMH,
       routeLengthKm,
     });
   }
 });
 
-console.log(`[simulator] ${buses.length} unidades simuladas en ${ROUTES.length} rutas.`);
+console.log(
+  `[simulator] ${buses.length} unidades simuladas en ${ROUTES.length} rutas ` +
+    `(${DIRECTIONS.length} sentidos).`,
+);
 
 /** Avanza un bus y construye su posición GPS. */
 function tickBus(bus: SimulatedBus): BusPosition {
