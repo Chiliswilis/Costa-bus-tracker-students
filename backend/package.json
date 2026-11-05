@@ -1,0 +1,27 @@
+{
+  "name": "@costa-bus/backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servidor Express + Socket.io que reenvía telemetría GPS y genera alertas de llegada.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@costa-bus/shared": "1.0.0",
+    "cors": "2.8.5",
+    "express": "4.19.2",
+    "socket.io": "4.7.5"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.17",
+    "@types/express": "4.17.21",
+    "@types/node": "20.14.10",
+    "tsx": "4.16.2",
+    "typescript": "5.5.3"
+  }
+}

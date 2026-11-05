@@ -1,0 +1,23 @@
+{
+  "name": "@costa-bus/simulator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generador de posiciones GPS simuladas que emite telemetría al backend por Socket.io.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@costa-bus/shared": "1.0.0",
+    "socket.io-client": "4.7.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "tsx": "4.16.2",
+    "typescript": "5.5.3"
+  }
+}

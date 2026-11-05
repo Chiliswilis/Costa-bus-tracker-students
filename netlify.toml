@@ -1,0 +1,25 @@
+# Netlify — Costa Bus Tracker (frontend)
+#
+# Este archivo vive en la RAÍZ del repositorio (Netlify lo lee ahí).
+#
+# Enfoque recomendado por Netlify para monorepos npm: NO fijar `base` y
+# ejecutar el build desde la raíz con `--workspace`, publicando la carpeta
+# `dist` del workspace frontend. Así no dependemos de la carpeta de trabajo ni
+# de la config del panel (este archivo la sobrescribe).
+#
+# El comando compila `@costa-bus/shared` (dependencia de tipos del frontend) y
+# luego SOLO el frontend. NO usa el `npm run build` raíz, que también compilaría
+# backend y simulator (esos van en Render, no en Netlify).
+
+[build]
+  command = "npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/frontend"
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA sin router, pero se deja el fallback por si se añaden rutas cliente.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

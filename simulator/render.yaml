@@ -1,0 +1,19 @@
+# Render Blueprint — Simulador (Costa Bus Tracker)
+#
+# Despliega el generador de telemetría simulada. Este archivo debe estar en la
+# RAÍZ del repositorio: Render solo lee un único `render.yaml`, por lo que
+# backend y simulador se declaran juntos en `/render.yaml`.
+
+services:
+  - type: worker
+    name: costa-bus-simulator
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build --workspace @costa-bus/shared && npm run build --workspace @costa-bus/simulator
+    startCommand: node dist/index.js
+    rootDir: simulator
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: BACKEND_URL
+        sync: false # define la URL pública del backend en el panel de Render

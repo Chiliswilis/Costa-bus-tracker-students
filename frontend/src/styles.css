@@ -1,0 +1,1372 @@
+/* ==========================================================================
+   Costa Bus Tracker — temas claro / oscuro
+   ========================================================================== */
+
+/* Tema claro (por defecto). */
+:root {
+  --bg: #eef2f7;
+  --bg-elevated: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-hover: #e6ecf5;
+  --border: #d3dce8;
+  --text: #17233a;
+  --text-muted: #5a6b86;
+  --accent: #0284c7;
+  --accent-strong: #0369a1;
+  --danger: #dc2626;
+  --warning: #b45309;
+  --success: #059669;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  --header-height: 60px;
+  --map-bg: #eef2f7;
+  --map-control-bg: rgba(255, 255, 255, 0.85);
+  --scrollbar-thumb: #c2cddd;
+  --scrollbar-thumb-hover: #9fb0c7;
+}
+
+/* Tema oscuro. */
+:root[data-theme="dark"] {
+  --bg: #0b1220;
+  --bg-elevated: #121c2f;
+  --bg-panel: #0f1729;
+  --bg-hover: #1b2740;
+  --border: #23304a;
+  --text: #e6edf7;
+  --text-muted: #8ea0bd;
+  --accent: #38bdf8;
+  --accent-strong: #0ea5e9;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --map-bg: #0b1220;
+  --map-control-bg: rgba(11, 18, 32, 0.8);
+  --scrollbar-thumb: #23304a;
+  --scrollbar-thumb-hover: #32415f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------- Iconos (Google Material Symbols) ------------------ */
+
+.mi {
+  font-family: "Material Symbols Rounded";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.15em;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
+  user-select: none;
+}
+
+.mi--filled {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* ------------------------------- Layout --------------------------------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--header-height);
+  padding: 0 18px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  /* Evita que el header desborde en pantallas estrechas. */
+  overflow: hidden;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.app-header__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header__subtitle {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header__spacer {
+  flex: 1;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.map-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ------------------------------ Indicadores ----------------------------- */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  white-space: nowrap;
+}
+
+.status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.status--online .status__dot {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+.status--offline .status__dot {
+  background: var(--warning);
+  box-shadow: 0 0 8px var(--warning);
+}
+
+/* --------------------------- Interruptor de tema ------------------------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  /* Área táctil cómoda en móvil (~44px de alto). */
+  min-height: 34px;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.theme-toggle__label {
+  display: inline;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-hover);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle__track {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle__thumb .mi {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle__track {
+  background: var(--accent-strong);
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle__thumb {
+  transform: translateX(20px);
+  color: var(--accent-strong);
+}
+
+/* -------------------------------- Botones ------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.83rem;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #04121f;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.btn--danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #2a0505;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #fb8b8b;
+}
+
+.btn--buy {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+
+.btn--buy:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.btn--ghost {
+  background: transparent;
+  padding: 5px 9px;
+  font-size: 0.78rem;
+}
+
+/* -------------------------------- Panel --------------------------------- */
+
+.sidebar {
+  width: 380px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar__section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ------------------------------ Selector -------------------------------- */
+
+.route-select {
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.route-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.route-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.route-controls {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.route-controls .route-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.route-controls .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.chip__swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+/* --------------------------- Lista de buses ----------------------------- */
+
+.bus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bus-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  padding: 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.bus-card--soon {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.5);
+  animation: pulse-border 1.6s ease-in-out infinite;
+}
+
+.bus-card--approaching {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+@keyframes pulse-border {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(248, 113, 113, 0);
+  }
+}
+
+.bus-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bus-card__id {
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bus-card__eta {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bus-card__eta--soon {
+  color: var(--danger);
+}
+
+.bus-card__eta--approaching {
+  color: var(--warning);
+}
+
+.bus-card__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.bus-card__row strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.bus-card__operator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Punto que identifica la línea que opera la unidad. */
+.bus-card__line-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.bus-card__to-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.bus-card__to-user-stop {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s linear;
+}
+
+/* ------------------------------- Alertas -------------------------------- */
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.alert {
+  display: flex;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  font-size: 0.8rem;
+  align-items: flex-start;
+}
+
+.alert__icon {
+  font-size: 1rem;
+  line-height: 1.2;
+  display: inline-flex;
+  color: var(--danger);
+}
+
+.alert__body {
+  min-width: 0;
+}
+
+.alert__message {
+  margin: 0;
+  color: var(--text);
+}
+
+.alert__time {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  margin-top: 3px;
+}
+
+/* ------------------------------- GO mode -------------------------------- */
+
+.go-overlay {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 600;
+  max-width: 330px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.go-overlay__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.go-overlay__eta {
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.go-overlay__eta--soon {
+  color: var(--danger);
+}
+
+.go-overlay__eta--approaching {
+  color: var(--warning);
+}
+
+.go-overlay__meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.go-overlay__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.go-overlay--ringing {
+  animation: ring 0.85s ease-in-out infinite;
+  border-color: var(--danger);
+}
+
+@keyframes ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(248, 113, 113, 0);
+  }
+}
+
+/* ------------------------------ Marcadores ------------------------------ */
+
+.bus-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  /* El color de fondo y de ícono lo pone el operador desde el marcador. */
+  border: 2px solid rgba(0, 0, 0, 0.35);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.bus-marker .mi {
+  font-size: 18px;
+}
+
+.bus-marker--soon {
+  animation: pulse-marker 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-marker {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+.stop-marker {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
+.stop-marker--active {
+  border-color: var(--danger);
+  background: var(--danger);
+}
+
+.user-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  border: 2px solid #04121f;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.28);
+}
+
+.user-marker .mi {
+  font-size: 16px;
+  color: #04121f;
+}
+
+/* --------------------------- Banner de ubicación ------------------------- */
+
+.location-banner {
+  display: flex;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  align-items: flex-start;
+}
+
+.location-banner--ok {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.location-banner > .mi {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.location-banner__hint {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  margin-top: 3px;
+}
+
+.location-banner__hint--error {
+  color: var(--danger);
+}
+
+.empty-state {
+  padding: 20px 14px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* ------------------------------ Responsivo ------------------------------ */
+
+@media (max-width: 900px) {
+  .app-body {
+    flex-direction: column;
+  }
+
+  .map-wrapper {
+    height: 46vh;
+    flex: none;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    flex: 1;
+  }
+
+  .app-header {
+    gap: 10px;
+    padding: 0 12px;
+  }
+
+  .app-header__title {
+    font-size: 1rem;
+  }
+
+  .app-header__subtitle {
+    display: none;
+  }
+
+  .status {
+    font-size: 0.7rem;
+    padding: 4px 9px;
+  }
+
+  .go-overlay {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    max-width: none;
+  }
+}
+
+/*
+ * Leyenda "Rutas activas" flotante sobre el mapa.
+ *
+ * En escritorio la cabecera no es interactiva: el botón se ve como un título
+ * plano y la lista siempre está visible. En móvil la cabecera se vuelve un
+ * botón táctil que expande/minimiza la lista para no tapar el mapa.
+ */
+.map-legend__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-legend__chevron {
+  font-size: 1.1rem;
+  line-height: 1;
+  display: inline-flex;
+}
+
+.map-legend__list {
+  margin-top: 7px;
+}
+
+/* Cerrada: la lista de rutas se oculta hasta que el usuario la expande. */
+.map-legend:not(.map-legend--open) .map-legend__list {
+  display: none;
+}
+
+/*
+ * En pantallas medianas y pequeñas la leyenda se limita al ancho disponible
+ * para no salirse del mapa.
+ */
+@media (max-width: 900px) {
+  .map-legend {
+    max-width: min(230px, calc(100% - 24px)) !important;
+    padding: 8px 12px !important;
+  }
+}
+
+/*
+ * En pantallas muy estrechas (móviles en vertical) se libera espacio del
+ * header: el texto del interruptor de tema se oculta y solo queda el switch
+ * con el ícono, que sigue siendo un objetivo táctil grande.
+ */
+@media (max-width: 480px) {
+  .app-header {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .app-header__title {
+    font-size: 0.92rem;
+  }
+
+  /* El botón de tema se convierte en solo el switch (sin la palabra). */
+  .theme-toggle__label {
+    display: none;
+  }
+
+  .theme-toggle {
+    padding: 4px;
+  }
+
+  /* El indicador "por llegar" se reduce a solo el número con ícono. */
+  .status {
+    padding: 4px 8px;
+  }
+
+  /* La leyenda se ancla arriba a la derecha sin tapar el centro del mapa. */
+  .map-legend {
+    top: 8px !important;
+    right: 8px !important;
+  }
+}
+
+/* --------------------------- Ajustes de Leaflet ------------------------- */
+
+.leaflet-container {
+  background: var(--map-bg);
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--bg-panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px;
+  font-size: 0.82rem;
+}
+
+.leaflet-control-attribution {
+  background: var(--map-control-bg) !important;
+  color: var(--text-muted) !important;
+  font-size: 10px !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--accent) !important;
+}
+
+.leaflet-bar a {
+  background: var(--bg-panel) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.leaflet-bar a:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* --------------------------------- Scroll ------------------------------- */
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ==========================================================================
+   Rutas cerca de ti (NearbyRoutes)
+   ========================================================================== */
+
+.nearby {
+  display: flex;
+  flex-direction: column;
+}
+
+.nearby__title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 9px;
+}
+
+.nearby__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nearby-card {
+  --line-color: var(--border);
+  --route-color: var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  /* Toda la fila se tiñe con el color de la RUTA. */
+  background: color-mix(in srgb, var(--route-color) 18%, var(--bg-elevated));
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--route-color);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.nearby-card:hover {
+  background: color-mix(in srgb, var(--route-color) 28%, var(--bg-elevated));
+}
+
+.nearby-card:active {
+  transform: translateY(1px);
+}
+
+.nearby-card:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+/* Fila de la ruta seleccionada: anillo de acento bien visible. */
+.nearby-card--active {
+  background: color-mix(in srgb, var(--route-color) 34%, var(--bg-elevated));
+  border-color: var(--accent-strong);
+  box-shadow:
+    0 0 0 2px var(--accent-strong),
+    inset 4px 0 0 0 var(--accent-strong);
+}
+
+/* Etiqueta de sentido (Ida / Regreso) en cada tarjeta. */
+.nearby-card__dir {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--route-color);
+  color: #04121f;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+.nearby-card__badge {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  /* El color lo pone la LÍNEA (dorado / azul / plata) desde el componente. */
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.nearby-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.nearby-card__title {
+  display: block;
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nearby-card__subtitle {
+  display: block;
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nearby-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.nearby-card__distance,
+.nearby-card__operator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nearby-card__operator {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nearby-card__eta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  color: var(--accent);
+}
+
+.nearby-card__eta-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.nearby-card__eta-unit {
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.nearby-card__eta-none {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Alertas de servicio (ServiceAlerts)
+   ========================================================================== */
+
+.service-alerts {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-alerts__title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 9px;
+}
+
+.service-alerts__stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-alerts__stop .mi {
+  color: var(--accent);
+}
+
+.service-alerts__headline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.service-alerts__eta-block {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--accent);
+}
+
+.service-alerts__eta-value {
+  font-size: 2.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.service-alerts__eta-unit {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.service-alerts__eta-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.service-alerts__eta-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.service-alerts__eta-stop {
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-alerts__headline--idle {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  gap: 8px;
+}
+
+.service-alerts__idle-text {
+  font-weight: 600;
+}
+
+.service-alerts__card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 13px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.service-alerts__card-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.service-alerts__card-top .mi {
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.service-alerts__card-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-alerts__card-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.service-alerts__card-address {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.service-alerts__notice {
+  display: flex;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  align-items: flex-start;
+}
+
+.service-alerts__notice > .mi {
+  color: var(--danger);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.service-alerts__notice-message {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.service-alerts__notice-time {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.service-alerts__card-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.service-alerts__clear {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+  .nearby-card {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .nearby-card__badge {
+    width: 40px;
+    height: 40px;
+    font-size: 1.05rem;
+  }
+
+  .service-alerts__eta-value {
+    font-size: 2rem;
+  }
+}
